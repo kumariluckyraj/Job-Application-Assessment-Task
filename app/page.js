@@ -2,7 +2,7 @@ import Chat from "@/components/Chat";
 
 export default function Home() {
   return (
-    <main className="mx-auto h-screen max-w-3xl">
+    <main className="h-dvh">
       <Chat />
     </main>
   );

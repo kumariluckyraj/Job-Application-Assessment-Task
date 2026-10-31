@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "app/page.js", "app/layout.js", "app/api/search/route.js", "app/api/parse-resume/route.js", "app/api/chat/route.js", "scripts/fetchJobs.mjs", "lib/types.js", "lib/resume.js", "lib/matching.js", "lib/jobs.js", "lib/groq.js", "lib/db.js", "lib/agent.js", "components/Chat.js"  ],
   "exclude": ["node_modules"]
 }

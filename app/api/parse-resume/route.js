@@ -4,7 +4,7 @@ import { extractResumeText, parseResume } from "@/lib/resume";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-export async function POST(req: Request) {
+export async function POST(req) {
   try {
     if (!process.env.GROQ_API_KEY) {
       console.error("GROQ_API_KEY is missing. Check .env.local and restart the dev server.");
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     let text = "";
     try {
       text = await extractResumeText(file);
-    } catch (e: any) {
+    } catch (e) {
       if (e?.message === "UNSUPPORTED")
         return NextResponse.json({ error: "Unsupported file type. Please upload a PDF or DOCX resume." }, { status: 400 });
       console.error("extractResumeText failed:", e?.message ?? e);
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     try {
       const profile = await parseResume(text);
       return NextResponse.json({ profile });
-    } catch (e: any) {
+    } catch (e) {
       console.error("parseResume failed:", e?.status, e?.message ?? e);
 
       if (e?.message === "NOT_A_RESUME")
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
 
       return NextResponse.json({ error: "The AI service had trouble parsing your resume. Please try again." }, { status: 502 });
     }
-  } catch (e: any) {
+  } catch (e) {
     console.error("parse-resume route failed:", e?.message ?? e);
     return NextResponse.json({ error: "Something went wrong uploading your file." }, { status: 500 });
   }

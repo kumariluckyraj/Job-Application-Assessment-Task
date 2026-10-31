@@ -5,15 +5,15 @@ import { extractResumeText } from "@/lib/resume";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-export async function POST(req: Request) {
+export async function POST(req) {
   try {
     if (!process.env.GROQ_API_KEY) {
       console.error("GROQ_API_KEY is missing. Check .env.local and restart the dev server.");
       return NextResponse.json({ error: "Server is missing the GROQ_API_KEY setting." }, { status: 500 });
     }
 
-    let body: any;
-    let resume: { name: string; text: string } | null = null;
+    let body;
+    let resume = null;
 
     if ((req.headers.get("content-type") ?? "").includes("multipart/form-data")) {
       const form = await req.formData();
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         let text = "";
         try {
           text = await extractResumeText(file);
-        } catch (e: any) {
+        } catch (e) {
           if (e?.message === "UNSUPPORTED")
             return NextResponse.json({ error: "Unsupported file type. Please upload a PDF or DOCX resume." }, { status: 400 });
           console.error("extractResumeText failed:", e?.message ?? e);
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       resume,
     });
     return NextResponse.json(out);
-  } catch (e: any) {
+  } catch (e) {
     console.error("chat route failed:", e?.status, e?.code, e?.message ?? e);
     if (e?.stack) console.error(e.stack.split("\n").slice(0, 6).join("\n"));
     const msg = String(e?.message ?? "");

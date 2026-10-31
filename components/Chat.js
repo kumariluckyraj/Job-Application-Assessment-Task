@@ -1,31 +1,21 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import type { AppRow, JobFilters, MatchedJob, Profile } from "@/lib/types";
 
-type Msg = {
-  role: "user" | "assistant";
-  content: string;
-  profile?: Profile;
-  jobs?: MatchedJob[];
-  applications?: AppRow[];
-  isError?: boolean;
-};
-
-const WELCOME: Msg = {
+const WELCOME = {
   role: "assistant",
   content: "Hi! Upload your resume (PDF or DOCX) with the 📎 button and I'll find jobs that match you.",
 };
 
 export default function Chat() {
-  const [messages, setMessages] = useState<Msg[]>([WELCOME]);
+  const [messages, setMessages] = useState([WELCOME]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [shownJobIds, setShownJobIds] = useState<number[]>([]);
-  const [filters, setFilters] = useState<JobFilters>({});
+  const [profile, setProfile] = useState(null);
+  const [shownJobIds, setShownJobIds] = useState([]);
+  const [filters, setFilters] = useState({});
   const [userId, setUserId] = useState("");
-  const fileRef = useRef<HTMLInputElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef(null);
+  const bottomRef = useRef(null);
 
   useEffect(() => {
     let id = localStorage.getItem("jobassist_uid");
@@ -34,8 +24,8 @@ export default function Chat() {
   }, []);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
 
-  async function send(text: string, history: Msg[] = messages, p: Profile | null = profile) {
-    const withUser: Msg[] = [...history, { role: "user", content: text }];
+  async function send(text, history = messages, p = profile) {
+    const withUser = [...history, { role: "user", content: text }];
     setMessages(withUser);
     setLoading(true);
     try {
@@ -52,14 +42,14 @@ export default function Chat() {
       if (data.shownJobIds) setShownJobIds(data.shownJobIds);
       if (data.filters) setFilters(data.filters);
       setMessages([...withUser, { role: "assistant", content: data.reply, jobs: data.jobs ?? undefined, applications: data.applications ?? undefined }]);
-    } catch (e: any) {
+    } catch (e) {
       setMessages([...withUser, { role: "assistant", content: e.message || "Something went wrong.", isError: true }]);
     } finally {
       setLoading(false);
     }
   }
 
-    async function refilter(next: JobFilters, note: string) {
+  async function refilter(next, note) {
     if (!profile || loading) return;
     setLoading(true);
     try {
@@ -77,15 +67,15 @@ export default function Chat() {
       } else {
         setMessages((m) => [...m, { role: "assistant", content: `${note} No jobs match the remaining filters. Try removing another one.` }]);
       }
-    } catch (e: any) {
+    } catch (e) {
       setMessages((m) => [...m, { role: "assistant", content: e.message || "Something went wrong.", isError: true }]);
     } finally {
       setLoading(false);
     }
   }
 
-  function removeFilter(key: keyof JobFilters, skill?: string) {
-    const next: JobFilters = { ...filters };
+  function removeFilter(key, skill) {
+    const next = { ...filters };
     if (key === "skills" && skill) {
       const left = (next.skills ?? []).filter((s) => s !== skill);
       if (left.length) next.skills = left;
@@ -96,7 +86,7 @@ export default function Chat() {
     refilter(next, "Filter removed.");
   }
 
-  const filterChips: { label: string; key: keyof JobFilters; skill?: string }[] = [];
+  const filterChips = [];
   if (filters.remote !== undefined) filterChips.push({ label: filters.remote ? "Remote only" : "On-site only", key: "remote" });
   filters.skills?.forEach((s) => filterChips.push({ label: `Skill: ${s}`, key: "skills", skill: s }));
   if (filters.location) filterChips.push({ label: `Location: ${filters.location}`, key: "location" });
@@ -104,8 +94,8 @@ export default function Chat() {
   if (filters.company) filterChips.push({ label: `Company: ${filters.company}`, key: "company" });
   if (filters.maxExperience !== undefined) filterChips.push({ label: `Up to ${filters.maxExperience} yrs`, key: "maxExperience" });
 
-    async function onFile(file: File) {
-    const base: Msg[] = [...messages, { role: "user", content: `📎 ${file.name}` }];
+  async function onFile(file) {
+    const base = [...messages, { role: "user", content: `📎 ${file.name}` }];
     setMessages(base);
     setLoading(true);
     try {
@@ -137,13 +127,14 @@ export default function Chat() {
           jobs: data.jobs ?? undefined,
         },
       ]);
-    } catch (e: any) {
+    } catch (e) {
       setMessages([...base, { role: "assistant", content: e.message || "Couldn't process that file.", isError: true }]);
     } finally {
       setLoading(false);
     }
   }
-  function submit(e: React.FormEvent) {
+
+  function submit(e) {
     e.preventDefault();
     const t = input.trim();
     if (!t || loading || !userId) return;
@@ -173,7 +164,8 @@ export default function Chat() {
         {loading && <p className="text-sm text-gray-400">Thinking…</p>}
         <div ref={bottomRef} />
       </div>
-                 {filterChips.length > 0 && (
+
+      {filterChips.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 px-4 pb-1">
           <span className="text-xs text-gray-500">Filters:</span>
           {filterChips.map((c) => (
@@ -198,6 +190,7 @@ export default function Chat() {
           </button>
         </div>
       )}
+
       <div className="flex flex-wrap gap-2 px-4 pb-2">
         {profile && ["Show only remote roles", "Jobs needing React", "Show my applied jobs"].map((s) => (
           <button key={s} disabled={loading} onClick={() => send(s)} className="rounded-full border px-3 py-1 text-xs hover:bg-gray-50 disabled:opacity-50">{s}</button>
@@ -216,7 +209,7 @@ export default function Chat() {
   );
 }
 
-function ProfileCard({ p }: { p: Profile }) {
+function ProfileCard({ p }) {
   return (
     <div className="rounded-xl border p-4 text-sm">
       <div className="text-base font-semibold">{p.name || "Name not found"}</div>
@@ -240,7 +233,7 @@ function ProfileCard({ p }: { p: Profile }) {
   );
 }
 
-function JobCard({ job, onApply, disabled }: { job: MatchedJob; onApply: () => void; disabled: boolean }) {
+function JobCard({ job, onApply, disabled }) {
   return (
     <div className="rounded-xl border p-4 text-sm">
       <div className="flex items-start justify-between gap-2">
@@ -263,7 +256,7 @@ function JobCard({ job, onApply, disabled }: { job: MatchedJob; onApply: () => v
   );
 }
 
-function ApplicationsTable({ rows }: { rows: AppRow[] }) {
+function ApplicationsTable({ rows }) {
   if (!rows.length) return null;
   return (
     <table className="w-full overflow-hidden rounded-xl border text-left text-sm">

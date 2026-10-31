@@ -2,8 +2,8 @@
 
 A conversational job-search assistant. Upload a resume (PDF or DOCX) in the chat, see the parsed details, get job recommendations with a match reason for each, refine them by chatting ("show only remote roles", "jobs needing React"), apply by chatting ("apply to job 3") and check your applications ("show my applied jobs").
 
-**Live demo:** `<add your Vercel URL here>`
-**Repository:** `<add your GitHub URL here>`
+**Live demo:** `https://job-application-assessment-task.vercel.app`
+**Repository:** `https://github.com/kumariluckyraj/Job-Application-Assessment-Task`
 
 | File | What it is |
 |---|---|

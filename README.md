@@ -5,7 +5,11 @@ A conversational job-search assistant. Upload a resume (PDF or DOCX) in the chat
 **Live demo:** `<add your Vercel URL here>`
 **Repository:** `<add your GitHub URL here>`
 
----
+| File | What it is |
+|---|---|
+| [`data/jobs.json`](data/jobs.json) | The JSON job database used by the app (target 1,500 to 2,000 tech jobs) |
+| [`scripts/fetchJobs.mjs`](scripts/fetchJobs.mjs) | The script that collects the jobs and builds `data/jobs.json` |
+
 
 ## Features
 
